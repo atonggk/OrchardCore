@@ -107,9 +107,9 @@ namespace OrchardCore.Lucene.Controllers
             model.Pager = pagerShape;
 
             model.Options.ContentsBulkAction = new List<SelectListItem>() {
-                new SelectListItem() { Text = H["Reset"].Value, Value = nameof(ContentsBulkAction.Reset) },
-                new SelectListItem() { Text = H["Rebuild"].Value, Value = nameof(ContentsBulkAction.Rebuild) },
-                new SelectListItem() { Text = H["Delete"].Value, Value = nameof(ContentsBulkAction.Remove) }
+                new SelectListItem() { Text = S["Reset"], Value = nameof(ContentsBulkAction.Reset) },
+                new SelectListItem() { Text = S["Rebuild"], Value = nameof(ContentsBulkAction.Rebuild) },
+                new SelectListItem() { Text = S["Delete"], Value = nameof(ContentsBulkAction.Remove) }
             };
 
             return View(model);
@@ -348,7 +348,7 @@ namespace OrchardCore.Lucene.Controllers
                 var analyzer = _luceneAnalyzerManager.CreateAnalyzer(await _luceneIndexSettingsService.GetIndexAnalyzerAsync(model.IndexName));
                 var context = new LuceneQueryContext(searcher, LuceneSettings.DefaultVersion, analyzer);
 
-                var templateContext = new TemplateContext();
+                var templateContext = _liquidTemplateManager.Context;
                 var parameters = JsonConvert.DeserializeObject<Dictionary<string, object>>(model.Parameters);
 
                 foreach (var parameter in parameters)
@@ -356,7 +356,7 @@ namespace OrchardCore.Lucene.Controllers
                     templateContext.SetValue(parameter.Key, parameter.Value);
                 }
 
-                var tokenizedContent = await _liquidTemplateManager.RenderAsync(model.DecodedQuery, System.Text.Encodings.Web.JavaScriptEncoder.Default, templateContext);
+                var tokenizedContent = await _liquidTemplateManager.RenderAsync(model.DecodedQuery, System.Text.Encodings.Web.JavaScriptEncoder.Default);
 
                 try
                 {
